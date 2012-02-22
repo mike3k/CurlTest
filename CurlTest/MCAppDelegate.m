@@ -3,10 +3,12 @@
 //  CurlTest
 //
 //  Created by Mike Cohen on 2/22/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Bionic Panda Games. All rights reserved.
 //
 
 #import "MCAppDelegate.h"
+
+#import "curl.h"
 
 @implementation MCAppDelegate
 
@@ -18,12 +20,34 @@
     [super dealloc];
 }
 
+size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+{
+    NSLog(@"write_data len=%ld data='%s'",size,buffer);
+    return size;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    
+    // insert test code here
+    CURL *curl;
+    CURLcode res;
+    
+    curl = curl_easy_init();
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "https://twitter.com/");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // skip verify since we don't have a certificate
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+   }
+
+    //
+    
     return YES;
 }
 
